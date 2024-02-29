@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8" />
+        <title>Generate Purchase Invoice</title>
+
+        <style>
+            .order-box {
+                max-width: 800px;
+                margin: auto;
+                padding: 30px;
+                border: 1px solid #eee;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+                font-size: 16px;
+                line-height: 24px;
+                font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+                color: #555;
+            }
+
+            .order-jumbo {
+                text-align: center;
+                font-size: 3em;
+                font-weight: bold;
+                color: gray;
+                margin-bottom: 20px;
+            }
+
+            .button {
+                background-color: #4CAF50;
+                border: none;
+                color: white;
+                padding: 16px 32px;
+                text-align: center;
+                font-size: 16px;
+                margin: 4px 2px;
+                opacity: 0.6;
+                transition: 0.3s;
+                display: inline-block;
+                text-decoration: none;
+                cursor: pointer;
+            }
+
+            .red-button {
+                background-color: red;
+            }
+
+            .button:hover {
+                opacity: 1;
+            }
+
+            .dialog {
+                display: none;
+                position: fixed;
+                z-index: 1000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: rgba(0, 0, 0, 0.4);
+            }
+
+            .dialog-content {
+                background-color: #fefefe;
+                margin: 15% auto;
+                padding: 20px;
+                border: 1px solid #888;
+                width: 80%;
+                box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+                animation-name: animatetop;
+                animation-duration: 0.4s
+            }
+
+            .dialog-buttons {
+                text-align: center;
+            }
+
+            @keyframes animatetop {
+                from {
+                    top: -300px;
+                    opacity: 0
+                }
+
+                to {
+                    top: 0;
+                    opacity: 1
+                }
+            }
+
+        </style>
+    </head>
+
+    <body ng-app="templateApp" ng-controller="templateContoller">
+        <div class="dialog" id="dialog">
+            <div ng-show="showDialog" class="dialog-content">
+                <h2 class="order-jumbo">Generate Purchase Invoice</h2>
+                <p>Are you sure you want to generate the purchase invoice?</p>
+                <div class="dialog-buttons">
+                    <button ng-click="generateInvoice()" class="button">Yes</button>
+                    <button ng-click="closeDialog()" class="button red-button">No</button>
+                </div>
+            </div>
+        </div>
+
+        <script src="/services/web/angularjs/1.8.2/angular.min.js"></script>
+        <script>
+            const app = angular.module('templateApp', []);
+            app.controller('templateContoller', function ($scope, $http) {
+                let url_string = (window.location.href).toLowerCase();
+                let url = new URL(url_string);
+                let id = url.searchParams.get("id");
+                $scope.showDialog = true;
+
+                const headerUrl = "/services/ts/codbex-orders/gen/api/PurchaseOrder/PurchaseOrderService.ts/" + id;
+                $http.get(headerUrl)
+                .then(function(response) {
+                    $scope.Order = response.data;
+                    const itemsUrl = "/services/ts/codbex-orders/gen/api/PurchaseOrder/PurchaseOrderItemService.ts?PurchaseOrder=" + $scope.Order.Id;
+                    $http.get(itemsUrl)
+                    .then(function(response) {
+                        $scope.OrderItems = response.data;
+                        const supplierUrl = "/services/ts/codbex-partners/gen/api/Suppliers/SupplierService.ts/" + $scope.Order.Supplier;
+                        $http.get(supplierUrl)
+                        .then(function(response) {
+                            $scope.Supplier = response.data;
+                        });
+                    });
+                });
+                console.log("PURCHASE ORDER: " + JSON.stringify($scope.Order));
+                $scope.generateInvoice = function () {
+                    const invoiceUrl = "/services/ts/codbex-invoices/gen/api/purchaseinvoice/PurchaseInvoiceService.ts/";
+                    const entity = {
+                        "Date": Date.now(),
+                        "Supplier": $scope.Order.Supplier,
+                        "Net": $scope.Order.Net,
+                        "Currency": $scope.Order.Currency,
+                        "Gross": $scope.Order.Gross,
+                        "Discount": $scope.Order.Discount,
+                        "Taxes": $scope.Order.Taxes,
+                        "VAT": $scope.Order.VAT,
+                        "Total": $scope.Order.Total,
+                        "PurchaseInvoiceStatus": 1,
+                        "Reference": $scope.Order.UUID
+                    };
+
+                    $http.post(invoiceUrl, entity)
+                    .then(function(response) {
+                        $scope.Invoice = response.data
+                        console.log("PURCHASE ITEM", JSON.stringify($scope.OrderItems))
+                        //Populate PurchaseInvoiceItems if there are PurchaseOrderItems
+                        if(!angular.equals($scope.OrderItems, {})){
+                            $scope.OrderItems.forEach(orderItem => {
+                                const purchaseInvoiceItem = {
+                                    "PurchaseInvoice": $scope.Invoice.Id,
+                                    "Name": orderItem.Name,
+                                    "Quantity": orderItem.Quantity,
+                                    "UoM": orderItem.UoM,
+                                    "Price": orderItem.Price,
+                                    "Net": orderItem.Net,
+                                    "VAT": orderItem.VAT,
+                                    "Gross": orderItem.Gross
+                                };
+                                invoiceItemUrl = "/services/ts/codbex-invoices/gen/api/purchaseinvoice/PurchaseInvoiceItemService.ts/"
+                                $http.post(invoiceItemUrl, purchaseInvoiceItem)
+                                .then(function(response) {
+                                })
+                                .catch(function(error) {
+                                });
+                            });
+                        }
+
+                            console.log("Invoice created successfully: ", response.data);
+                            alert("Invoice created successfully");
+                        })
+                        .catch(function(error) {
+                            console.error("Error creating invoice: ", error);
+                            alert("Error creating purchase invoice");
+                        });
+
+                        $scope.closeDialog();
+                };
+                
+                $scope.closeDialog = function () {
+                     $scope.showDialog = false;
+                };
+
+                // Display the dialog when the page loads
+                document.getElementById("dialog").style.display = "block";
+        });
+        </script>
+
+    </body>
+
+</html>
