@@ -1,0 +1,10 @@
+{
+    "guid": "codbex-order-invoice-ext",
+    "repository": {
+        "type": "git",
+        "branch": "main",
+        "url": "https://github.com/codbex/codbex-order-invoice-ext.git"
+    },
+    "dependencies": [],
+    "actions": []
+}
