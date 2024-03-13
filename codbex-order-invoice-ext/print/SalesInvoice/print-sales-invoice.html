@@ -4,129 +4,10 @@
     <head>
         <meta charset="utf-8" />
         <title>Sales Invoice</title>
-
-        <style>
-            .invoice-box {
-                max-width: 800px;
-                margin: auto;
-                padding: 30px;
-                border: 1px solid #eee;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-                font-size: 16px;
-                line-height: 24px;
-                font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
-                color: #555;
-            }
-
-            .invoice-box table {
-                width: 100%;
-                line-height: inherit;
-                text-align: left;
-            }
-
-            .invoice-box table td {
-                padding: 5px;
-                vertical-align: top;
-            }
-
-            .invoice-box table tr td:nth-child(2) {
-                text-align: right;
-            }
-
-            .invoice-box table tr td:nth-child(3) {
-                text-align: right;
-            }
-
-            .invoice-box table tr td:nth-child(4) {
-                text-align: right;
-            }
-
-            .invoice-box table tr.top table td {
-                padding-bottom: 20px;
-            }
-
-            .invoice-box table tr.top table td.title {
-                font-size: 45px;
-                line-height: 45px;
-                color: #333;
-            }
-
-            .invoice-box table tr.information table td {
-                padding-bottom: 40px;
-            }
-
-            .invoice-box table tr.heading td {
-                background: #eee;
-                border-bottom: 1px solid #ddd;
-                font-weight: bold;
-            }
-
-            .invoice-box table tr.details td {
-                padding-bottom: 20px;
-            }
-
-            .invoice-box table tr.item td {
-                border-bottom: 1px solid #eee;
-            }
-
-            .invoice-box table tr.item.last td {
-                border-bottom: none;
-            }
-
-            .invoice-box table tr.total td:nth-child(4) {
-                border-top: 2px solid #eee;
-                font-weight: bold;
-            }
-
-            .invoice-jumbo {
-                text-align: center;
-                font-size: 3em;
-                font-weight: bold;
-                color: gray;
-            }
-
-            .invoice-footer {
-                text-align: center;
-                font-weight: bold;
-            }
-
-            @media only screen and (max-width: 600px) {
-                .invoice-box table tr.top table td {
-                    width: 100%;
-                    display: block;
-                    text-align: center;
-                }
-
-                .invoice-box table tr.information table td {
-                    width: 100%;
-                    display: block;
-                    text-align: center;
-                }
-            }
-
-            /** RTL **/
-            .invoice-box.rtl {
-                direction: rtl;
-                font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
-            }
-
-            .invoice-box.rtl table {
-                text-align: right;
-            }
-
-            .invoice-box.rtl table tr td:nth-child(2) {
-                text-align: left;
-            }
-
-            .invoice-box.rtl table tr td:nth-child(3) {
-                text-align: left;
-            }
-
-            .invoice-box.rtl table tr td:nth-child(4) {
-                text-align: left;
-            }
-
-        </style>
+        <link rel="stylesheet" href="/services/web/codbex-order-invoice-ext/print/SalesInvoice/print-sales-invoice.css">
+        <script src="/services/web/angularjs/1.8.2/angular.min.js"></script>
+        <script src="/services/web/codbex-order-invoice-ext/print/SalesInvoice/print-sales-invoice-controller.js">
+        </script>
     </head>
 
     <body>
@@ -166,10 +47,10 @@
                                 </td>
 
                                 <td>
-                                    <b>{{Supplier.Name}}</b><br />
-                                    {{Supplier.Contact}}<br />
-                                    {{Supplier.Email}}<br />
-                                    VAT #: <b>{{Supplier.TIN}}</b>
+                                    <b>{{Customer.Name}}</b><br />
+                                    {{Customer.Contact}}<br />
+                                    {{Customer.Email}}<br />
+                                    VAT #: <b>{{Customer.TIN}}</b>
                                 </td>
                             </tr>
                         </table>
@@ -185,8 +66,8 @@
                 </tr>
 
                 <tr class="details">
-                    <td>{{Invoice.PaymentMethod.Name}}</td>
-                    <td>{{Invoice.SentMethod.Name}}</td>
+                    <td>{{Invoice.PaymentMethod}}</td>
+                    <td>{{Invoice.SentMethod}}</td>
                     <td>{{Invoice.Conditions}}</td>
                 </tr>
             </table>
@@ -213,9 +94,13 @@
                     <td></td>
                     <td></td>
                     <td></td>
+                    <td></td>
+                    <td></td>
                     <td>Net: {{Invoice.Net| number}}</td>
                 </tr>
                 <tr>
+                    <td></td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -225,9 +110,13 @@
                     <td></td>
                     <td></td>
                     <td></td>
+                    <td></td>
+                    <td></td>
                     <td>Discount: {{Invoice.Discount| number}}</td>
                 </tr>
                 <tr>
+                    <td></td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -237,9 +126,13 @@
                     <td></td>
                     <td></td>
                     <td></td>
+                    <td></td>
+                    <td></td>
                     <td>VAT: {{Invoice.VAT| number}}</td>
                 </tr>
                 <tr class="total">
+                    <td></td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -275,51 +168,6 @@
             <div class="invoice-footer">THANK YOU FOR YOUR BUSINESS!</div>
 
         </div>
-
-        <script src="/services/web/angularjs/1.8.2/angular.min.js"></script>
-        <script>
-            const app = angular.module('templateApp', []);
-            app.controller('templateContoller', function($scope, $http) {
-                let url_string = (window.location.href).toLowerCase();
-                let url = new URL(url_string);
-                let id = url.searchParams.get("id");
-                
-                const companyUrl = "/services/ts/codbex-companies/gen/api/Companies/CompanyService.ts/1";
-                $http.get(companyUrl)
-                .then(function(response) {
-                    $scope.Company = response.data;
-                    var cityUrl = "/services/ts/codbex-companies/gen/api/Cities/CityService.ts/" + $scope.Company.City;
-                    $http.get(cityUrl)
-                    .then(function(response) {
-                        $scope.Company.CityName = response.data.Name;
-                    });
-                    const countryUrl = "/services/ts/codbex-contries/gen/api/Countries/CountryService.ts/" + $scope.Company.Country;
-                    $http.get(countryUrl)
-                    .then(function(response) {
-                        $scope.Company.CountryName = response.data.Name;
-                    });
-                });
-
-                const headerUrl = "/services/ts/codbex-invoices/gen/api/salesinvoice/SalesInvoiceService.ts/" + id;
-                $http.get(headerUrl)
-                .then(function(response) {
-                    $scope.Invoice = response.data;
-                    const itemsUrl = "/services/ts/codbex-invoices/gen/api/salesinvoice/SalesInvoiceItemService.ts?SalesInvoice=" + $scope.Invoice.Id;
-                    $http.get(itemsUrl)
-                    .then(function(response) {
-                        $scope.InvoiceItems = response.data;
-                        const supplierUrl = "/services/ts/codbex-partners/gen/api/Suppliers/SupplierService.ts/" + $scope.Invoice.Supplier;
-                        $http.get(supplierUrl)
-                        .then(function(response) {
-                            $scope.Supplier = response.data;
-                            window.print();
-                        });
-                    });
-                });
-            });
-        </script>
-
-
     </body>
 
 </html>
