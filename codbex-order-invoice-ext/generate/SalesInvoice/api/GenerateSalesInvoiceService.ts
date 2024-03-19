@@ -34,6 +34,7 @@ class SalesOrderService {
             "Conditions": salesOrder.Conditions,
             "PaymentMethod": salesOrder.PaymentMethod,
             "SentMethod": salesOrder.SentMethod,
+            "Company": salesOrder.Company,
             "SalesInvoiceStatus": 1,
             "Operator": salesOrder.Operator,
             "Reference": salesOrder.UUID

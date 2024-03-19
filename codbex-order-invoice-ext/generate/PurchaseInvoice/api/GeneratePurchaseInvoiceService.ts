@@ -34,6 +34,7 @@ class SalesOrderService {
             "Conditions": purchaseOrder.Conditions,
             "PaymentMethod": purchaseOrder.PaymentMethod,
             "SentMethod": purchaseOrder.SentMethod,
+            "Company": purchaseOrder.Company,
             "PurchaseInvoiceStatus": 1,
             "Operator": purchaseOrder.Operator,
             "Reference": purchaseOrder.UUID
