@@ -4,7 +4,7 @@ import { PurchaseOrderItemRepository as PurchaseOrderItemDao } from "../../../..
 import { Controller, Get } from "sdk/http";
 
 @Controller
-class SalesOrderService {
+class GeneratePurchaseInvoiceService {
 
     private readonly purchaseOrderDao;
     private readonly purchaseOrderItemDao;

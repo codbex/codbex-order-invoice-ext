@@ -4,7 +4,7 @@ import { SalesOrderItemRepository as SalesOrderItemDao } from "../../../../codbe
 import { Controller, Get } from "sdk/http";
 
 @Controller
-class SalesOrderService {
+class GenerateSalesInvoiceService {
 
     private readonly salesOrderDao;
     private readonly salesOrderItemDao;
