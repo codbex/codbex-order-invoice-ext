@@ -1,11 +1,8 @@
+const app = angular.module('templateApp', ['ideUI', 'ideView']);
+app.controller('templateController', ['$scope', '$http', 'ViewParameters', function ($scope, $http, ViewParameters) {
+    const params = ViewParameters.get();
 
-const app = angular.module('templateApp', []);
-app.controller('templateContoller', function ($scope, $http) {
-    const urlString = window.location.href.toLowerCase();
-    const url = new URL(urlString);
-    let salesOrderId = url.searchParams.get("id");
-
-    const printSalesOrderUrl = "/services/ts/codbex-order-invoice-ext/print/SalesOrder/api/SalesOrderService.ts/" + salesOrderId;
+    const printSalesOrderUrl = "/services/ts/codbex-order-invoice-ext/print/SalesOrder/api/SalesOrderService.ts/" + params.id;
 
     $http.get(printSalesOrderUrl)
         .then(function (response) {
@@ -14,4 +11,4 @@ app.controller('templateContoller', function ($scope, $http) {
             $scope.Customer = response.data.customer;
             $scope.Company = response.data.company;
         });
-});
+}]);

@@ -1,17 +1,15 @@
-const app = angular.module('templateApp', []);
-app.controller('templateContoller', function ($scope, $http) {
-    let url_string = (window.location.href).toLowerCase();
-    let url = new URL(url_string);
-    let id = url.searchParams.get("id");
+const app = angular.module('templateApp', ['ideUI', 'ideView']);
+app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'messageHub', function ($scope, $http, ViewParameters, messageHub) {
+    const params = ViewParameters.get();
     $scope.showDialog = true;
 
-    const purchaseOrderDataUrl = "/services/ts/codbex-order-invoice-ext/generate/PurchaseInvoice/api/GeneratePurchaseInvoiceService.ts/purchaseOrderData/" + id;
+    const purchaseOrderDataUrl = "/services/ts/codbex-order-invoice-ext/generate/PurchaseInvoice/api/GeneratePurchaseInvoiceService.ts/purchaseOrderData/" + params.id;
     $http.get(purchaseOrderDataUrl)
         .then(function (response) {
             $scope.PurchaseOrderData = response.data;
         });
 
-    const purchaseOrderItemsUrl = "/services/ts/codbex-order-invoice-ext/generate/PurchaseInvoice/api/GeneratePurchaseInvoiceService.ts/purchaseOrderItemsData/" + id;
+    const purchaseOrderItemsUrl = "/services/ts/codbex-order-invoice-ext/generate/PurchaseInvoice/api/GeneratePurchaseInvoiceService.ts/purchaseOrderItemsData/" + params.id;
     $http.get(purchaseOrderItemsUrl)
         .then(function (response) {
             $scope.PurchaseOrderItemsData = response.data;
@@ -53,7 +51,8 @@ app.controller('templateContoller', function ($scope, $http) {
 
     $scope.closeDialog = function () {
         $scope.showDialog = false;
+        messageHub.closeDialogWindow("purchase-invoice-generate");
     };
 
     document.getElementById("dialog").style.display = "block";
-});
+}]);

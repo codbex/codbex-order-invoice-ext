@@ -1,17 +1,15 @@
-const app = angular.module('templateApp', []);
-app.controller('templateContoller', function ($scope, $http) {
-    let url_string = (window.location.href).toLowerCase();
-    let url = new URL(url_string);
-    let id = url.searchParams.get("id");
+const app = angular.module('templateApp', ['ideUI', 'ideView']);
+app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'messageHub', function ($scope, $http, ViewParameters, messageHub) {
+    const params = ViewParameters.get();
     $scope.showDialog = true;
 
-    const salesOrderDataUrl = "/services/ts/codbex-order-invoice-ext/generate/SalesInvoice/api/GenerateSalesInvoiceService.ts/salesOrderData/" + id;
+    const salesOrderDataUrl = "/services/ts/codbex-order-invoice-ext/generate/SalesInvoice/api/GenerateSalesInvoiceService.ts/salesOrderData/" + params.id;
     $http.get(salesOrderDataUrl)
         .then(function (response) {
             $scope.SalesOrderData = response.data;
         });
 
-    const salesOrderItemsUrl = "/services/ts/codbex-order-invoice-ext/generate/SalesInvoice/api/GenerateSalesInvoiceService.ts/salesOrderItemsData/" + id;
+    const salesOrderItemsUrl = "/services/ts/codbex-order-invoice-ext/generate/SalesInvoice/api/GenerateSalesInvoiceService.ts/salesOrderItemsData/" + params.id;
     $http.get(salesOrderItemsUrl)
         .then(function (response) {
             $scope.SalesOrderItemsData = response.data;
@@ -53,7 +51,8 @@ app.controller('templateContoller', function ($scope, $http) {
 
     $scope.closeDialog = function () {
         $scope.showDialog = false;
+        messageHub.closeDialogWindow("sales-invoice-generate");
     };
 
     document.getElementById("dialog").style.display = "block";
-});
+}]);
