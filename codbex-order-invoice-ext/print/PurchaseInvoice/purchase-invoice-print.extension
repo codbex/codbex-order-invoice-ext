@@ -1,5 +1,0 @@
-{
-    "extensionPoint": "codbex-invoices-custom-action",
-    "module": "codbex-order-invoice-ext/print/PurchaseInvoice/purchase-invoice-print.js",
-    "description": "Print Purchase Invoice Custom Action"
-}
