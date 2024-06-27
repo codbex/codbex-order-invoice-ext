@@ -40,13 +40,13 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
 
                 console.log("Invoice created successfully: ", response.data);
                 //alert("Invoice created successfully");
+                $scope.closeDialog();
             })
             .catch(function (error) {
                 console.error("Error creating invoice: ", error);
                 //alert("Error creating purchase invoice");
+                $scope.closeDialog();
             });
-
-        $scope.closeDialog();
     };
 
     $scope.closeDialog = function () {
