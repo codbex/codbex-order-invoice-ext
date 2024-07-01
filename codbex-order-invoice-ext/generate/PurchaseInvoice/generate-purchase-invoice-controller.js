@@ -16,7 +16,7 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
         });
 
     $scope.generateInvoice = function () {
-        const invoiceUrl = "/services/ts/codbex-invoices/gen/api/purchaseinvoice/PurchaseInvoiceService.ts/";
+        const invoiceUrl = "/services/ts/codbex-invoices/gen/codbex-invoices/api/purchaseinvoice/PurchaseInvoiceService.ts/";
 
         $http.post(invoiceUrl, $scope.PurchaseOrderData)
             .then(function (response) {
@@ -33,20 +33,20 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
                             "VAT": orderItem.VAT,
                             "Gross": orderItem.Gross
                         };
-                        let invoiceItemUrl = "/services/ts/codbex-invoices/gen/api/purchaseinvoice/PurchaseInvoiceItemService.ts/"
+                        let invoiceItemUrl = "/services/ts/codbex-invoices/gen/codbex-invoices/api/purchaseinvoice/PurchaseInvoiceItemService.ts/"
                         $http.post(invoiceItemUrl, purchaseInvoiceItem);
                     });
                 }
 
                 console.log("Invoice created successfully: ", response.data);
                 //alert("Invoice created successfully");
+                $scope.closeDialog();
             })
             .catch(function (error) {
                 console.error("Error creating invoice: ", error);
                 //alert("Error creating purchase invoice");
+                $scope.closeDialog();
             });
-
-        $scope.closeDialog();
     };
 
     $scope.closeDialog = function () {
