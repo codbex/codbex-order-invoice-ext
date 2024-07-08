@@ -1,5 +1,5 @@
-import { SalesOrderRepository as SalesOrderDao } from "../../../../codbex-orders/gen/codbex-orders/dao/salesorder/SalesOrderRepository";
-import { SalesOrderItemRepository as SalesOrderItemDao } from "../../../../codbex-orders/gen/codbex-orders/dao/salesorder/SalesOrderItemRepository";
+import { SalesOrderRepository as SalesOrderDao } from "../../../../codbex-orders/gen/dao/salesorder/SalesOrderRepository";
+import { SalesOrderItemRepository as SalesOrderItemDao } from "../../../../codbex-orders/gen/dao/salesorder/SalesOrderItemRepository";
 
 import { Controller, Get } from "sdk/http";
 
