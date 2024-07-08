@@ -1,6 +1,6 @@
 {
     "name": "@codbex/codbex-order-invoice-ext",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "repository": {
         "url": "https://github.com/codbex/codbex-order-invoice-ext.git",
         "type": "git"
