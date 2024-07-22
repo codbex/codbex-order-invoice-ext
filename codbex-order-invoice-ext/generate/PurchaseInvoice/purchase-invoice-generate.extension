@@ -1,5 +1,0 @@
-{
-    "module": "codbex-order-invoice-ext/generate/PurchaseInvoice/purchase-invoice-generate.js",
-    "extensionPoint": "codbex-orders-custom-action",
-    "description": "Generate Purchase Invoice From Purchase Order Custom Action"
-}
