@@ -3,20 +3,44 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
     const params = ViewParameters.get();
     $scope.showDialog = true;
 
+    $scope.entity = {};
+    $scope.forms = {
+        details: {},
+    };
+
     const salesOrderDataUrl = "/services/ts/codbex-order-invoice-ext/generate/SalesInvoice/api/GenerateSalesInvoiceService.ts/salesOrderData/" + params.id;
+    const salesOrderItemsUrl = "/services/ts/codbex-order-invoice-ext/generate/SalesInvoice/api/GenerateSalesInvoiceService.ts/salesOrderItemsData/" + params.id;
+    const paymentMethodsUrl = "/services/ts/codbex-methods/gen/codbex-methods/api/Methods/PaymentMethodService.ts/";
+    const invoiceUrl = "/services/ts/codbex-invoices/gen/codbex-invoices/api/salesinvoice/SalesInvoiceService.ts/";
+    const invoiceItemUrl = "/services/ts/codbex-invoices/gen/codbex-invoices/api/salesinvoice/SalesInvoiceItemService.ts/"
+
     $http.get(salesOrderDataUrl)
         .then(function (response) {
             $scope.SalesOrderData = response.data;
         });
 
-    const salesOrderItemsUrl = "/services/ts/codbex-order-invoice-ext/generate/SalesInvoice/api/GenerateSalesInvoiceService.ts/salesOrderItemsData/" + params.id;
     $http.get(salesOrderItemsUrl)
         .then(function (response) {
             $scope.SalesOrderItemsData = response.data;
         });
 
+    $http.get(paymentMethodsUrl)
+        .then(function (response) {
+            let paymenMethodOptions = response.data;
+
+            $scope.optionsPaymentMethod = paymenMethodOptions.map(function (value) {
+                return {
+                    value: value.Id,
+                    text: value.Name
+                };
+            });
+        });
+
     $scope.generateInvoice = function () {
-        const invoiceUrl = "/services/ts/codbex-invoices/gen/codbex-invoices/api/salesinvoice/SalesInvoiceService.ts/";
+
+        let invoiceData = $scope.SalesOrderData;
+        invoiceData.PaymentMethod = $scope.entity.PaymentMethod;
+        invoiceData.Paid = $scope.entity.PaymentAmount;
 
         $http.post(invoiceUrl, $scope.SalesOrderData)
             .then(function (response) {
@@ -33,7 +57,6 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
                             "VAT": orderItem.VAT,
                             "Gross": orderItem.Gross
                         };
-                        let invoiceItemUrl = "/services/ts/codbex-invoices/gen/codbex-invoices/api/salesinvoice/SalesInvoiceItemService.ts/"
                         $http.post(invoiceItemUrl, salesInvoiceItem);
                     });
                 }
