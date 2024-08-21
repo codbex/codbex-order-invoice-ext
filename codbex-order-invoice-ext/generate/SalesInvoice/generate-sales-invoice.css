@@ -34,12 +34,18 @@
 
         .main-text {
             margin-top: 10px;
-            margin-bottom: 20px;
             color: #666;
+        }
+
+        .dialog-select {
+            display: flex;
+            flex-direction: row;
+            gap: 1em;
         }
 
         .dialog-buttons {
             text-align: right;
+            margin-top: 30px;
         }
 
         .button {
