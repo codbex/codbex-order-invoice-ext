@@ -40,7 +40,17 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
 
         let invoiceData = $scope.SalesOrderData;
         invoiceData.PaymentMethod = $scope.entity.PaymentMethod;
-        invoiceData.Paid = $scope.entity.PaymentAmount;
+
+        if ($scope.entity.fullInvoice) {
+            invoiceData.SalesInvoiceType = 1;
+            invoiceData.Paid = $scope.SalesOrderData.Total;
+        } else if ($scope.entity.advanceInvoice) {
+            invoiceData.SalesInvoiceType = 3;
+            invoiceData.Paid = $scope.entity.PaymentAmount;
+        } else if ($scope.entity.partialInvoice) {
+            invoiceData.SalesInvoiceType = 2;
+            invoiceData.Paid = $scope.entity.PaymentAmount;
+        }
 
         $http.post(invoiceUrl, $scope.SalesOrderData)
             .then(function (response) {

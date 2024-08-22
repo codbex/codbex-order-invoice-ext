@@ -28,16 +28,16 @@
                     <fd-fieldset ng-form="forms.details">
                         <fd-form-group name="entityForm" class="fd-container fd-form-layout-grid-container">
                             <div class="dialog-select">
-                                <input type="checkbox" ng-model="fullInvoice"
-                                    ng-disabled="advanceInvoice || partialInvoice" />
+                                <input type="checkbox" ng-model="entity.fullInvoice"
+                                    ng-disabled="entity.advanceInvoice || entity.partialInvoice" />
                                 <p>Full invoice</p>
                             </div>
                             <div class="dialog-select">
-                                <input type="checkbox" ng-model="advanceInvoice"
-                                    ng-disabled="fullInvoice || partialInvoice" />
+                                <input type="checkbox" ng-model="entity.advanceInvoice"
+                                    ng-disabled="entity.fullInvoice || entity.partialInvoice" />
                                 <p>Advance invoice</p>
                             </div>
-                            <div ng-if="advanceInvoice">
+                            <div ng-if="entity.advanceInvoice">
                                 <fd-form-item class="fd-row">
                                     <div class="fd-col fd-col-md--4">
                                         <fd-form-label for="idPaymentAmount" dg-required="true" dg-colon="true">Payment
@@ -54,11 +54,11 @@
                                 </fd-form-item>
                             </div>
                             <div class="dialog-select">
-                                <input type="checkbox" ng-model="partialInvoice"
-                                    ng-disabled="fullInvoice || advanceInvoice" />
+                                <input type="checkbox" ng-model="entity.partialInvoice"
+                                    ng-disabled="entity.fullInvoice || entity.advanceInvoice" />
                                 <p>Partial invoice</p>
                             </div>
-                            <div ng-if="partialInvoice">
+                            <div ng-if="entity.partialInvoice">
                                 <fd-form-item class="fd-row">
                                     <div class="fd-col fd-col-md--4">
                                         <fd-form-label for="idPaymentAmount" dg-required="true" dg-colon="true">Payment
@@ -93,7 +93,7 @@
                                 <fd-bar-right>
                                     <fd-bar-element>
                                         <fd-button class="button" dg-label="Generate" dg-type="emphasized"
-                                            ng-click="generateInvoice()"
+                                            ng-click="generateInvoice(); checkSelectedInvoice()"
                                             state="{{ forms.details.$valid ? '' : 'disabled' }}">
                                         </fd-button>
                                     </fd-bar-element>
