@@ -40,15 +40,14 @@
                             <div ng-if="entity.advanceInvoice">
                                 <fd-form-item class="fd-row">
                                     <div class="fd-col fd-col-md--4">
-                                        <fd-form-label for="idPaymentAmount" dg-required="true" dg-colon="true">Payment
-                                            Amount
+                                        <fd-form-label for="idNet" dg-required="true" dg-colon="true">Net
                                         </fd-form-label>
                                     </div>
                                     <div class="fd-col  fd-col-md--8 ">
-                                        <fd-step-input dg-id="idPaymentAmount" name="PaymentAmount"
-                                            state="{{ forms.details['PaymentAmount'].$valid ? '' : 'error' }}"
-                                            dg-required="true" ng-model="entity.PaymentAmount"
-                                            is-readonly="action === 'select'" placeholder="Enter Payment Amount">
+                                        <fd-step-input dg-id="idNet" name="Net"
+                                            state="{{ forms.details['Net'].$valid ? '' : 'error' }}" dg-required="true"
+                                            ng-model="entity.Net" is-readonly="action === 'select'"
+                                            placeholder="Enter Net">
                                         </fd-step-input>
                                     </div>
                                 </fd-form-item>
@@ -61,15 +60,14 @@
                             <div ng-if="entity.partialInvoice">
                                 <fd-form-item class="fd-row">
                                     <div class="fd-col fd-col-md--4">
-                                        <fd-form-label for="idPaymentAmount" dg-required="true" dg-colon="true">Payment
-                                            Amount
+                                        <fd-form-label for="idNet" dg-required="true" dg-colon="true">Net
                                         </fd-form-label>
                                     </div>
                                     <div class="fd-col  fd-col-md--8 ">
-                                        <fd-step-input dg-id="idPaymentAmount" name="PaymentAmount"
-                                            state="{{ forms.details['PaymentAmount'].$valid ? '' : 'error' }}"
-                                            dg-required="true" ng-model="entity.PaymentAmount"
-                                            is-readonly="action === 'select'" placeholder="Enter Payment Amount">
+                                        <fd-step-input dg-id="idNet" name="Net"
+                                            state="{{ forms.details['Net'].$valid ? '' : 'error' }}" dg-required="true"
+                                            ng-model="entity.Net" is-readonly="action === 'select'"
+                                            placeholder="Enter Net">
                                         </fd-step-input>
                                     </div>
                                 </fd-form-item>

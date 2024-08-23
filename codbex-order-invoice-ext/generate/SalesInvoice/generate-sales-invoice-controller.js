@@ -40,21 +40,22 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
 
         let invoiceData = $scope.SalesOrderData;
         invoiceData.PaymentMethod = $scope.entity.PaymentMethod;
+        invoiceData.Date = new Date();
 
         if ($scope.entity.fullInvoice) {
             invoiceData.SalesInvoiceType = 1;
-            invoiceData.Paid = $scope.SalesOrderData.Total;
+            invoiceData.Net = $scope.SalesOrderData.Total;
         } else if ($scope.entity.advanceInvoice) {
             invoiceData.SalesInvoiceType = 3;
-            invoiceData.Paid = $scope.entity.PaymentAmount;
+            invoiceData.Net = $scope.entity.Net;
         } else if ($scope.entity.partialInvoice) {
             invoiceData.SalesInvoiceType = 2;
-            invoiceData.Paid = $scope.entity.PaymentAmount;
+            invoiceData.Net = $scope.entity.Net;
         }
 
-        $http.post(invoiceUrl, $scope.SalesOrderData)
+        $http.post(invoiceUrl, invoiceData)
             .then(function (response) {
-                $scope.Invoice = response.data
+                $scope.Invoice = response.data;
                 if (!angular.equals($scope.OrderItems, {})) {
                     $scope.SalesOrderItemsData.forEach(orderItem => {
                         const salesInvoiceItem = {
