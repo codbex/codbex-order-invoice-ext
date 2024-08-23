@@ -24,33 +24,33 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
             $scope.SalesOrderItemsData = response.data;
         });
 
-    $http.get(paymentMethodsUrl)
-        .then(function (response) {
-            let paymenMethodOptions = response.data;
+    // $http.get(paymentMethodsUrl)
+    //     .then(function (response) {
+    //         let paymenMethodOptions = response.data;
 
-            $scope.optionsPaymentMethod = paymenMethodOptions.map(function (value) {
-                return {
-                    value: value.Id,
-                    text: value.Name
-                };
-            });
-        });
+    //         $scope.optionsPaymentMethod = paymenMethodOptions.map(function (value) {
+    //             return {
+    //                 value: value.Id,
+    //                 text: value.Name
+    //             };
+    //         });
+    //     });
 
     $scope.generateInvoice = function () {
 
         let invoiceData = $scope.SalesOrderData;
-        invoiceData.PaymentMethod = $scope.entity.PaymentMethod;
+        // invoiceData.PaymentMethod = $scope.entity.PaymentMethod;
         invoiceData.Date = new Date();
 
         if ($scope.entity.fullInvoice) {
             invoiceData.SalesInvoiceType = 1;
-            invoiceData.Net = $scope.SalesOrderData.Total;
+            // invoiceData.Net = $scope.SalesOrderData.Total;
         } else if ($scope.entity.advanceInvoice) {
             invoiceData.SalesInvoiceType = 3;
-            invoiceData.Net = $scope.entity.Net;
+            // invoiceData.Net = $scope.entity.Net;
         } else if ($scope.entity.partialInvoice) {
             invoiceData.SalesInvoiceType = 2;
-            invoiceData.Net = $scope.entity.Net;
+            // invoiceData.Net = $scope.entity.Net;
         }
 
         $http.post(invoiceUrl, invoiceData)
@@ -58,6 +58,8 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
                 $scope.Invoice = response.data;
                 if (!angular.equals($scope.OrderItems, {})) {
                     $scope.SalesOrderItemsData.forEach(orderItem => {
+
+                        console.log(orderItem.Product);
                         const salesInvoiceItem = {
                             "SalesInvoice": $scope.Invoice.Id,
                             "Product": orderItem.Product,
