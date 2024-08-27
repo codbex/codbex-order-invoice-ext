@@ -32,7 +32,6 @@ class GenerateSalesInvoiceService {
             "VAT": salesOrder.VAT,
             "Total": salesOrder.Total,
             "Conditions": salesOrder.Conditions,
-            "PaymentMethod": salesOrder.PaymentMethod,
             "SentMethod": salesOrder.SentMethod,
             "Company": salesOrder.Company,
             "SalesInvoiceStatus": 1,
