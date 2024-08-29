@@ -1,4 +1,7 @@
-const app = angular.module('templateApp', ['ideUI', 'ideView']);
+const app = angular.module('templateApp', ['ideUI', 'ideView'])
+    .config(["messageHubProvider", function (messageHubProvider) {
+        messageHubProvider.eventIdPrefix = 'codbex-invoices.salesinvoice.SalesInvoice';
+    }]);
 app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'messageHub', function ($scope, $http, ViewParameters, messageHub) {
     const params = ViewParameters.get();
     $scope.showDialog = true;
@@ -39,10 +42,10 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
         $http.post(invoiceUrl, invoiceData)
             .then(function (response) {
                 $scope.Invoice = response.data;
+
                 if (!angular.equals($scope.OrderItems, {})) {
                     $scope.SalesOrderItemsData.forEach(orderItem => {
 
-                        console.log(orderItem.Product);
                         const salesInvoiceItem = {
                             "SalesInvoice": $scope.Invoice.Id,
                             "Product": orderItem.Product,
@@ -58,12 +61,11 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
                 }
 
                 console.log("Invoice created successfully: ", response.data);
-                //alert("Invoice created successfully");
+                messageHub.showAlertSuccess("SalesInvoice", "Sales Invoice successfully created");
                 $scope.closeDialog();
             })
             .catch(function (error) {
                 console.error("Error creating invoice: ", error);
-                //alert("Error creating sales invoice");
                 $scope.closeDialog();
             });
     };

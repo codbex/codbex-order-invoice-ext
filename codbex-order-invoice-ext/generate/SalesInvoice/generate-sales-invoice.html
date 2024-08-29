@@ -27,65 +27,27 @@
                 <fd-scrollbar class="dg-full-height">
                     <fd-fieldset ng-form="forms.details">
                         <fd-form-group name="entityForm" class="fd-container fd-form-layout-grid-container">
-                            <div class="dialog-select">
-                                <input type="checkbox" ng-model="entity.fullInvoice"
-                                    ng-disabled="entity.advanceInvoice || entity.partialInvoice" />
-                                <p>Full invoice</p>
-                            </div>
-                            <div class="dialog-select">
-                                <input type="checkbox" ng-model="entity.advanceInvoice"
-                                    ng-disabled="entity.fullInvoice || entity.partialInvoice" />
-                                <p>Advance invoice</p>
-                            </div>
-                            <!-- <div ng-if="entity.advanceInvoice">
-                                <fd-form-item class="fd-row">
-                                    <div class="fd-col fd-col-md--4">
-                                        <fd-form-label for="idNet" dg-required="true" dg-colon="true">Net
-                                        </fd-form-label>
-                                    </div>
-                                    <div class="fd-col  fd-col-md--8 ">
-                                        <fd-step-input dg-id="idNet" name="Net"
-                                            state="{{ forms.details['Net'].$valid ? '' : 'error' }}" dg-required="true"
-                                            ng-model="entity.Net" is-readonly="action === 'select'"
-                                            placeholder="Enter Net">
-                                        </fd-step-input>
-                                    </div>
-                                </fd-form-item>
-                            </div> -->
-                            <div class="dialog-select">
-                                <input type="checkbox" ng-model="entity.partialInvoice"
-                                    ng-disabled="entity.fullInvoice || entity.advanceInvoice" />
-                                <p>Partial invoice</p>
-                            </div>
-                            <!-- <div ng-if="entity.partialInvoice">
-                                <fd-form-item class="fd-row">
-                                    <div class="fd-col fd-col-md--4">
-                                        <fd-form-label for="idNet" dg-required="true" dg-colon="true">Net
-                                        </fd-form-label>
-                                    </div>
-                                    <div class="fd-col  fd-col-md--8 ">
-                                        <fd-step-input dg-id="idNet" name="Net"
-                                            state="{{ forms.details['Net'].$valid ? '' : 'error' }}" dg-required="true"
-                                            ng-model="entity.Net" is-readonly="action === 'select'"
-                                            placeholder="Enter Net">
-                                        </fd-step-input>
-                                    </div>
-                                </fd-form-item>
-                            </div> -->
-                            <!-- <fd-form-item class="fd-row">
-                                <div class="fd-col fd-col-md--4">
-                                    <fd-form-label for="idPaymentMethod" dg-required="true" dg-colon="true">
-                                        PaymentMethod</fd-form-label>
+                            <fd-form-item>
+                                <div class="dialog-select">
+                                    <input type="checkbox" ng-model="entity.fullInvoice"
+                                        ng-disabled="entity.advanceInvoice || entity.partialInvoice" />
+                                    <p>Full invoice</p>
                                 </div>
-                                <div class="fd-col fd-col-md--8">
-                                    <fd-combobox-input id="idPaymentMethod" name="PaymentMethod"
-                                        state="{{ forms.details['PaymentMethod'].$valid ? '' : 'error' }}"
-                                        ng-required="true" ng-model="entity.PaymentMethod"
-                                        dg-disabled="action === 'select'" dropdown-items="optionsPaymentMethod"
-                                        dg-placeholder="Search PaymentMethod ...">
-                                    </fd-combobox-input>
+                            </fd-form-item>
+                            <fd-form-item>
+                                <div class="dialog-select">
+                                    <input type="checkbox" ng-model="entity.advanceInvoice"
+                                        ng-disabled="entity.fullInvoice || entity.partialInvoice" />
+                                    <p>Advance invoice</p>
                                 </div>
-                            </fd-form-item> -->
+                            </fd-form-item>
+                            <fd-form-item>
+                                <div class="dialog-select">
+                                    <input type="checkbox" ng-model="entity.partialInvoice"
+                                        ng-disabled="entity.fullInvoice || entity.advanceInvoice" />
+                                    <p>Partial invoice</p>
+                                </div>
+                            </fd-form-item>
                             <fd-bar class="dialog-buttons" bar-design="footer" compact="true"
                                 ng-show="action !== 'select'">
                                 <fd-bar-right>
