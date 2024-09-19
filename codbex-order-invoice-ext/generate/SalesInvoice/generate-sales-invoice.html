@@ -27,34 +27,60 @@
                 <fd-scrollbar class="dg-full-height">
                     <fd-fieldset ng-form="forms.details">
                         <fd-form-group name="entityForm" class="fd-container fd-form-layout-grid-container">
-                            <fd-form-item>
-                                <div class="dialog-select">
-                                    <input type="checkbox" ng-model="entity.fullInvoice"
-                                        ng-disabled="entity.advanceInvoice || entity.partialInvoice" />
-                                    <p>Full invoice</p>
-                                </div>
-                            </fd-form-item>
-                            <fd-form-item>
-                                <div class="dialog-select">
-                                    <input type="checkbox" ng-model="entity.advanceInvoice"
-                                        ng-disabled="entity.fullInvoice || entity.partialInvoice" />
-                                    <p>Advance invoice</p>
-                                </div>
-                            </fd-form-item>
-                            <fd-form-item>
-                                <div class="dialog-select">
-                                    <input type="checkbox" ng-model="entity.partialInvoice"
-                                        ng-disabled="entity.fullInvoice || entity.advanceInvoice" />
-                                    <p>Partial invoice</p>
-                                </div>
-                            </fd-form-item>
+                            <div class="dialog-select">
+                                <input type="checkbox" ng-model="fullInvoice"
+                                    ng-disabled="advanceInvoice || partialInvoice" />
+                                <p>Full invoice</p>
+                            </div>
+                            <div class="dialog-select">
+                                <input type="checkbox" ng-model="advanceInvoice"
+                                    ng-disabled="fullInvoice || partialInvoice" />
+                                <p>Advance invoice</p>
+                            </div>
+                            <div ng-if="advanceInvoice">
+                                <fd-form-item class="fd-row">
+                                    <div class="fd-col fd-col-md--4">
+                                        <fd-form-label for="idPaymentAmount" dg-required="true" dg-colon="true">Payment
+                                            Amount
+                                        </fd-form-label>
+                                    </div>
+                                    <div class="fd-col  fd-col-md--8 ">
+                                        <fd-step-input dg-id="idPaymentAmount" name="PaymentAmount"
+                                            state="{{ forms.details['PaymentAmount'].$valid ? '' : 'error' }}"
+                                            dg-required="true" ng-model="entity.PaymentAmount"
+                                            is-readonly="action === 'select'" placeholder="Enter Payment Amount">
+                                        </fd-step-input>
+                                    </div>
+                                </fd-form-item>
+                            </div>
+                            <div class="dialog-select">
+                                <input type="checkbox" ng-model="partialInvoice"
+                                    ng-disabled="fullInvoice || advanceInvoice" />
+                                <p>Partial invoice</p>
+                            </div>
+                            <div ng-if="partialInvoice">
+                                <fd-form-item class="fd-row">
+                                    <div class="fd-col fd-col-md--4">
+                                        <fd-form-label for="idPaymentAmount" dg-required="true" dg-colon="true">Payment
+                                            Amount
+                                        </fd-form-label>
+                                    </div>
+                                    <div class="fd-col  fd-col-md--8 ">
+                                        <fd-step-input dg-id="idPaymentAmount" name="PaymentAmount"
+                                            state="{{ forms.details['PaymentAmount'].$valid ? '' : 'error' }}"
+                                            dg-required="true" ng-model="entity.PaymentAmount"
+                                            is-readonly="action === 'select'" placeholder="Enter Payment Amount">
+                                        </fd-step-input>
+                                    </div>
+                                </fd-form-item>
+                            </div>
                             <fd-bar class="dialog-buttons" bar-design="footer" compact="true"
                                 ng-show="action !== 'select'">
                                 <fd-bar-right>
                                     <fd-bar-element>
                                         <fd-button class="button" dg-label="Generate" dg-type="emphasized"
-                                            ng-click="generateInvoice(); checkSelectedInvoice()"
-                                            state="{{ entity.partialInvoice || entity.fullInvoice || entity.advanceInvoice ? '' : 'disabled' }}">
+                                            ng-click="generateInvoice()"
+                                            state="{{ forms.details.$valid ? '' : 'disabled' }}">
                                         </fd-button>
                                     </fd-bar-element>
                                     <fd-bar-element>
