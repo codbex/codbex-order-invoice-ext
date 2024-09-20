@@ -74,6 +74,20 @@
                                     </div>
                                 </fd-form-item>
                             </div>
+                            <fd-form-item class="fd-row">
+                                <div class="fd-col fd-col-md--4">
+                                    <fd-form-label for="idPaymentMethod" dg-required="true" dg-colon="true">
+                                        PaymentMethod</fd-form-label>
+                                </div>
+                                <div class="fd-col fd-col-md--8">
+                                    <fd-combobox-input id="idPaymentMethod" name="PaymentMethod"
+                                        state="{{ forms.details['PaymentMethod'].$valid ? '' : 'error' }}"
+                                        ng-required="true" ng-model="entity.PaymentMethod"
+                                        dg-disabled="action === 'select'" dropdown-items="optionsPaymentMethod"
+                                        dg-placeholder="Search PaymentMethod ...">
+                                    </fd-combobox-input>
+                                </div>
+                            </fd-form-item>
                             <fd-bar class="dialog-buttons" bar-design="footer" compact="true"
                                 ng-show="action !== 'select'">
                                 <fd-bar-right>

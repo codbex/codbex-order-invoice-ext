@@ -15,6 +15,7 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
     const salesOrderItemsUrl = "/services/ts/codbex-order-invoice-ext/generate/SalesInvoice/api/GenerateSalesInvoiceService.ts/salesOrderItemsData/" + params.id;
     const invoiceUrl = "/services/ts/codbex-invoices/gen/codbex-invoices/api/salesinvoice/SalesInvoiceService.ts/";
     const invoiceItemUrl = "/services/ts/codbex-invoices/gen/codbex-invoices/api/salesinvoice/SalesInvoiceItemService.ts/"
+    const paymentMethodsUrl = "/services/ts/codbex-methods/gen/codbex-methods/api/Methods/PaymentMethodService.ts/";
 
     $http.get(salesOrderDataUrl)
         .then(function (response) {
@@ -26,6 +27,17 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
             $scope.SalesOrderItemsData = response.data;
         });
 
+    $http.get(paymentMethodsUrl)
+        .then(function (response) {
+            let paymenMethodOptions = response.data;
+
+            $scope.optionsPaymentMethod = paymenMethodOptions.map(function (value) {
+                return {
+                    value: value.Id,
+                    text: value.Name
+                };
+            });
+        });
 
     $scope.generateInvoice = function () {
 
@@ -48,7 +60,7 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
                         $scope.SalesOrderItemsData.forEach(orderItem => {
                             const salesInvoiceItem = {
                                 "SalesInvoice": $scope.Invoice.Id,
-                                "Product": orderItem.Product,
+                                "Name": orderItem.Product,
                                 "Quantity": orderItem.Quantity,
                                 "UoM": orderItem.UoM,
                                 "Price": orderItem.Price,
@@ -75,10 +87,13 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
                 .then(function (response) {
                     $scope.Invoice = response.data;
 
+                    // Determine the invoice type for the Name field
+                    const invoiceTypeName = $scope.entity.advanceInvoice ? "Advance Payment" : "Partial Payment";
+
                     // Create one invoice item with the type of the invoice and order number
                     const salesInvoiceItem = {
                         "SalesInvoice": $scope.Invoice.Id,
-                        "Product": `Invoice for Order ${$scope.SalesOrderData.OrderNumber}`, // Description instead of product
+                        "Name": `${invoiceTypeName} for Order ${$scope.SalesOrderData.OrderNumber}`, // Include invoice type in Name
                         "Quantity": 1, // Single item for partial/advance invoice
                         "UoM": 17, // Pieces
                         "Price": $scope.entity.PaymentAmount, // The net amount for partial/advance invoice
@@ -99,6 +114,7 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
                     $scope.closeDialog();
                 });
         }
+
     };
 
     $scope.closeDialog = function () {
