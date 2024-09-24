@@ -2,156 +2,138 @@ const app = angular.module('templateApp', ['ideUI', 'ideView'])
     .config(["messageHubProvider", function (messageHubProvider) {
         messageHubProvider.eventIdPrefix = 'codbex-invoices.salesinvoice.SalesInvoice';
     }]);
-
 app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'messageHub', function ($scope, $http, ViewParameters, messageHub) {
     const params = ViewParameters.get();
     $scope.showDialog = true;
 
-    // Initialize scope objects
     $scope.entity = {};
-    $scope.forms = { details: {} };
+    $scope.forms = {
+        details: {},
+    };
 
-    const baseApiUrl = "/services/ts/codbex-invoices/gen/codbex-invoices/api/";
-    const salesOrderDataUrl = `/services/ts/codbex-order-invoice-ext/generate/SalesInvoice/api/GenerateSalesInvoiceService.ts/salesOrderData/${params.id}`;
-    const salesOrderItemsUrl = `/services/ts/codbex-order-invoice-ext/generate/SalesInvoice/api/GenerateSalesInvoiceService.ts/salesOrderItemsData/${params.id}`;
-    const invoiceUrl = `${baseApiUrl}salesinvoice/SalesInvoiceService.ts/`;
-    const invoiceItemUrl = `${baseApiUrl}salesinvoice/SalesInvoiceItemService.ts/`;
+    const salesOrderDataUrl = "/services/ts/codbex-order-invoice-ext/generate/SalesInvoice/api/GenerateSalesInvoiceService.ts/salesOrderData/" + params.id;
+    const salesOrderItemsUrl = "/services/ts/codbex-order-invoice-ext/generate/SalesInvoice/api/GenerateSalesInvoiceService.ts/salesOrderItemsData/" + params.id;
+    const invoiceUrl = "/services/ts/codbex-invoices/gen/codbex-invoices/api/salesinvoice/SalesInvoiceService.ts/";
+    const invoiceItemUrl = "/services/ts/codbex-invoices/gen/codbex-invoices/api/salesinvoice/SalesInvoiceItemService.ts/"
     const paymentMethodsUrl = "/services/ts/codbex-methods/gen/codbex-methods/api/Methods/PaymentMethodService.ts/";
 
-    // Fetch Sales Order Data
     $http.get(salesOrderDataUrl)
         .then(function (response) {
             $scope.SalesOrderData = response.data;
-        })
-        .catch(function (error) {
-            console.error("Error fetching Sales Order Data: ", error);
         });
 
-    // Fetch Sales Order Items Data
     $http.get(salesOrderItemsUrl)
         .then(function (response) {
             $scope.SalesOrderItemsData = response.data;
-        })
-        .catch(function (error) {
-            console.error("Error fetching Sales Order Items Data: ", error);
         });
 
-    // Fetch Payment Methods
     $http.get(paymentMethodsUrl)
         .then(function (response) {
-            $scope.optionsPaymentMethod = response.data.map(value => ({
-                value: value.Id,
-                text: value.Name
-            }));
-        })
-        .catch(function (error) {
-            console.error("Error fetching Payment Methods: ", error);
+            let paymenMethodOptions = response.data;
+
+            $scope.optionsPaymentMethod = paymenMethodOptions.map(function (value) {
+                return {
+                    value: value.Id,
+                    text: value.Name
+                };
+            });
         });
 
-    // Generate Invoice based on user selection (Full, Partial, or Advance)
     $scope.generateInvoice = function () {
-        if (!$scope.SalesOrderData || !$scope.entity.PaymentMethod) {
-            console.error("Missing Sales Order Data or Payment Method");
-            return;
-        }
 
-        let invoiceData = angular.copy($scope.SalesOrderData);
+        let invoiceData = $scope.SalesOrderData;
         invoiceData.Date = new Date();
+        const dueDate = new Date(invoiceData.Date); // Clone the Date object
+        dueDate.setMonth(dueDate.getMonth() + 1); // Add one month
+        invoiceData.Due = dueDate;
         invoiceData.PaymentMethod = $scope.entity.PaymentMethod;
 
-        // Handling different invoice types
+        // Check the type of invoice and handle accordingly
         if ($scope.entity.fullInvoice) {
-            createFullInvoice(invoiceData);
-        } else if ($scope.entity.advanceInvoice || $scope.entity.partialInvoice) {
-            createPartialOrAdvanceInvoice(invoiceData);
-        }
-    };
+            // Full invoice: use the net amount from the order and transfer all order items
+            invoiceData.SalesInvoiceType = 1; // Full Invoice Type
 
-    // Create Full Invoice
-    function createFullInvoice(invoiceData) {
-        invoiceData.SalesInvoiceType = 1; // Full Invoice Type
-        invoiceData.Net = $scope.SalesOrderData.NetAmount;
+            $http.post(invoiceUrl, invoiceData)
+                .then(function (response) {
+                    $scope.Invoice = response.data;
 
-        $http.post(invoiceUrl, invoiceData)
-            .then(function (response) {
-                $scope.Invoice = response.data;
-                createInvoiceItems($scope.SalesOrderItemsData, $scope.Invoice.Id);
-                messageHub.showAlertSuccess("SalesInvoice", "Sales Invoice successfully created");
-                $scope.closeDialog();
-            })
-            .catch(function (error) {
-                handleError("Error creating full invoice", error);
-            });
-    }
+                    // Transfer all order items
+                    if (!angular.equals($scope.SalesOrderItemsData, {})) {
+                        $scope.SalesOrderItemsData.forEach(orderItem => {
+                            const salesInvoiceItem = {
+                                "SalesInvoice": $scope.Invoice.Id,
+                                "Name": orderItem.Product,
+                                "Quantity": orderItem.Quantity,
+                                "UoM": orderItem.UoM,
+                                "Price": orderItem.Price,
+                            };
+                            $http.post(invoiceItemUrl, salesInvoiceItem);
+                        });
+                    }
 
-    // Create Partial or Advance Invoice
-    function createPartialOrAdvanceInvoice(invoiceData) {
-        const isAdvance = $scope.entity.advanceInvoice;
-        invoiceData.SalesInvoiceType = isAdvance ? 3 : 2; // Advance = 3, Partial = 2
-
-        $http.post(invoiceUrl, invoiceData)
-            .then(function (response) {
-                $scope.Invoice = response.data;
-
-                const invoiceItem = {
-                    SalesInvoice: $scope.Invoice.Id,
-                    Name: `${isAdvance ? "Advance Payment" : "Partial Payment"} for Order ${$scope.SalesOrderData.OrderNumber}`,
-                    Quantity: 1,
-                    UoM: 17, // Pieces
-                    Price: $scope.entity.PaymentAmount
-                };
-
-                $http.post(invoiceItemUrl, invoiceItem)
-                    .then(() => {
-                        console.log("Invoice item created successfully");
-                    })
-                    .catch(function (error) {
-                        handleError("Error creating invoice item", error);
-                    });
-
-                messageHub.showAlertSuccess("SalesInvoice", "Sales Invoice successfully created");
-                $scope.closeDialog();
-            })
-            .catch(function (error) {
-                handleError("Error creating partial/advance invoice", error);
-            });
-    }
-
-    // Create Invoice Items for Full Invoice
-    function createInvoiceItems(orderItems, invoiceId) {
-        if (!orderItems || !invoiceId) return;
-
-        orderItems.forEach(orderItem => {
-            const salesInvoiceItem = {
-                SalesInvoice: invoiceId,
-                Name: orderItem.Product,
-                Quantity: orderItem.Quantity,
-                UoM: orderItem.UoM,
-                Price: orderItem.Price
-            };
-
-            $http.post(invoiceItemUrl, salesInvoiceItem)
-                .then(() => {
-                    console.log("Invoice item created successfully");
+                    console.log("Full Invoice created successfully: ", response.data);
+                    messageHub.showAlertSuccess("SalesInvoice", "Sales Invoice successfully created");
+                    $scope.closeDialog();
                 })
                 .catch(function (error) {
-                    handleError("Error creating invoice item", error);
+                    console.error("Error creating full invoice: ", error);
+                    $scope.closeDialog();
                 });
-        });
-    }
 
-    // Close Dialog
+        } else if ($scope.entity.advanceInvoice || $scope.entity.partialInvoice) {
+            // Advance or partial invoice: use the new amount and create only one invoice item
+            invoiceData.SalesInvoiceType = $scope.entity.advanceInvoice ? 3 : 2; // Advance = 3, Partial = 2
+
+            // Post the invoice first and wait for the response before creating the invoice item
+            $http.post(invoiceUrl, invoiceData)
+                .then(function (response) {
+                    $scope.Invoice = response.data; // The invoice is created here
+
+                    // Check if PaymentAmount is valid before creating an item
+                    if ($scope.entity.PaymentAmount && $scope.entity.PaymentAmount > 0) {
+
+                        // Determine the invoice type for the Name field
+                        const invoiceTypeName = $scope.entity.advanceInvoice ? "Advance Payment" : "Partial Payment";
+
+                        // Create one invoice item with the type of the invoice and order number
+                        const salesInvoiceItem = {
+                            "SalesInvoice": $scope.Invoice.Id,
+                            "Name": `${invoiceTypeName} for Order ${$scope.SalesOrderData.Number}`, // Include invoice type in Name
+                            "Quantity": 1, // Single item for partial/advance invoice
+                            "UoM": 17, // Pieces
+                            "Price": $scope.entity.PaymentAmount, // The net amount for partial/advance invoice
+                        };
+
+                        console.log("Invoice item data: ", salesInvoiceItem);
+                        // Post the single invoice item
+                        $http.post(invoiceItemUrl, salesInvoiceItem)
+                            .then((itemResponse) => {
+                                console.log("Invoice item created successfully: ", itemResponse.data);
+                                messageHub.showAlertSuccess("SalesInvoice", "Sales Invoice successfully created with item");
+                            })
+                            .catch(function (error) {
+                                console.error("Error creating invoice item: ", error);
+                                messageHub.showAlertError("SalesInvoice", "Failed to create invoice item");
+                            });
+
+                        $scope.closeDialog();
+                    } else {
+                        console.error("Payment amount is invalid for partial/advance invoice.");
+                        messageHub.showAlertError("SalesInvoice", "Invalid payment amount");
+                    }
+                })
+                .catch(function (error) {
+                    console.error("Error creating partial/advance invoice: ", error);
+                    $scope.closeDialog();
+                });
+        }
+
+    };
+
     $scope.closeDialog = function () {
         $scope.showDialog = false;
         messageHub.closeDialogWindow("sales-invoice-generate");
     };
-
-    // Handle error and log details
-    function handleError(message, error) {
-        console.error(message, error);
-        messageHub.showAlertError("SalesInvoice", message);
-        $scope.closeDialog();
-    }
 
     document.getElementById("dialog").style.display = "block";
 }]);

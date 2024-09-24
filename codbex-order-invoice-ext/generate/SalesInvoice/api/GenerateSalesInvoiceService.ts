@@ -21,16 +21,17 @@ class GenerateSalesInvoiceService {
         let salesOrder = this.salesOrderDao.findById(salesOrderId);
 
         return {
-            "Date": salesOrder.Date,
-            "Due": salesOrder.Due,
+            "Number": salesOrder.Number,
+            // "Date": salesOrder.Date,
+            // "Due": salesOrder.Due,
             "Customer": salesOrder.Customer,
-            "Net": salesOrder.Net,
+            // "Net": salesOrder.Net,
             "Currency": salesOrder.Currency,
-            "Gross": salesOrder.Gross,
+            // "Gross": salesOrder.Gross,
             "Discount": salesOrder.Discount,
             "Taxes": salesOrder.Taxes,
-            "VAT": salesOrder.VAT,
-            "Total": salesOrder.Total,
+            // "VAT": salesOrder.VAT,
+            // "Total": salesOrder.Total,
             "Conditions": salesOrder.Conditions,
             "SentMethod": salesOrder.SentMethod,
             "Company": salesOrder.Company,
