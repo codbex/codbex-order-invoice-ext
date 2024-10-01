@@ -65,7 +65,7 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
                                 "Name": orderItem.Product,
                                 "Quantity": orderItem.Quantity,
                                 "UoM": orderItem.UoM,
-                                "Price": orderItem.Price,
+                                "Price": orderItem.Price
                             };
                             $http.post(invoiceItemUrl, salesInvoiceItem);
                         });
@@ -101,7 +101,7 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
                             "Name": `${invoiceTypeName} for Order ${$scope.SalesOrderData.Number}`, // Include invoice type in Name
                             "Quantity": 1, // Single item for partial/advance invoice
                             "UoM": 17, // Pieces
-                            "Price": $scope.entity.PaymentAmount, // The net amount for partial/advance invoice
+                            "Price": $scope.entity.PaymentAmount // The net amount for partial/advance invoice
                         };
 
                         console.log("Invoice item data: ", salesInvoiceItem);
