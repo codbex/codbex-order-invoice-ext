@@ -43,26 +43,23 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
 
         let invoiceData = $scope.SalesOrderData;
         invoiceData.Date = new Date();
-        const dueDate = new Date(invoiceData.Date); // Clone the Date object
-        dueDate.setMonth(dueDate.getMonth() + 1); // Add one month
+        const dueDate = new Date(invoiceData.Date);
+        dueDate.setMonth(dueDate.getMonth() + 1);
         invoiceData.Due = dueDate;
         invoiceData.PaymentMethod = $scope.entity.PaymentMethod;
 
-        // Check the type of invoice and handle accordingly
         if ($scope.entity.fullInvoice) {
-            // Full invoice: use the net amount from the order and transfer all order items
-            invoiceData.SalesInvoiceType = 1; // Full Invoice Type
+            invoiceData.SalesInvoiceType = 1;
 
             $http.post(invoiceUrl, invoiceData)
                 .then(function (response) {
                     $scope.Invoice = response.data;
 
-                    // Transfer all order items
                     if (!angular.equals($scope.SalesOrderItemsData, {})) {
                         $scope.SalesOrderItemsData.forEach(orderItem => {
                             const salesInvoiceItem = {
                                 "SalesInvoice": $scope.Invoice.Id,
-                                "Name": orderItem.Product,
+                                "Name": orderItem.Name,
                                 "Quantity": orderItem.Quantity,
                                 "UoM": orderItem.UoM,
                                 "Price": orderItem.Price
@@ -81,31 +78,25 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
                 });
 
         } else if ($scope.entity.advanceInvoice || $scope.entity.partialInvoice) {
-            // Advance or partial invoice: use the new amount and create only one invoice item
             invoiceData.SalesInvoiceType = $scope.entity.advanceInvoice ? 3 : 2; // Advance = 3, Partial = 2
 
-            // Post the invoice first and wait for the response before creating the invoice item
             $http.post(invoiceUrl, invoiceData)
                 .then(function (response) {
-                    $scope.Invoice = response.data; // The invoice is created here
+                    $scope.Invoice = response.data;
 
-                    // Check if PaymentAmount is valid before creating an item
                     if ($scope.entity.PaymentAmount && $scope.entity.PaymentAmount > 0) {
 
-                        // Determine the invoice type for the Name field
                         const invoiceTypeName = $scope.entity.advanceInvoice ? "Advance Payment" : "Partial Payment";
 
-                        // Create one invoice item with the type of the invoice and order number
                         const salesInvoiceItem = {
                             "SalesInvoice": $scope.Invoice.Id,
-                            "Name": `${invoiceTypeName} for Order ${$scope.SalesOrderData.Number}`, // Include invoice type in Name
-                            "Quantity": 1, // Single item for partial/advance invoice
-                            "UoM": 17, // Pieces
-                            "Price": $scope.entity.PaymentAmount // The net amount for partial/advance invoice
+                            "Name": `${invoiceTypeName} for Order ${$scope.SalesOrderData.Number}`,
+                            "Quantity": 1,
+                            "UoM": 17, //Pieces
+                            "Price": $scope.entity.PaymentAmount
                         };
 
                         console.log("Invoice item data: ", salesInvoiceItem);
-                        // Post the single invoice item
                         $http.post(invoiceItemUrl, salesInvoiceItem)
                             .then((itemResponse) => {
                                 console.log("Invoice item created successfully: ", itemResponse.data);
