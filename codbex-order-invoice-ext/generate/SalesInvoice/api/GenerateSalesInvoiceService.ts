@@ -1,5 +1,6 @@
 import { SalesOrderRepository as SalesOrderDao } from "../../../../codbex-orders/gen/codbex-orders/dao/salesorder/SalesOrderRepository";
 import { SalesOrderItemRepository as SalesOrderItemDao } from "../../../../codbex-orders/gen/codbex-orders/dao/salesorder/SalesOrderItemRepository";
+import { SalesInvoiceRepository as SalesInvoiceDao } from "../../../../codbex-invoices/gen/codbex-invoices/dao/salesinvoice/SalesInvoiceRepository";
 
 import { Controller, Get } from "sdk/http";
 
@@ -8,10 +9,12 @@ class GenerateSalesInvoiceService {
 
     private readonly salesOrderDao;
     private readonly salesOrderItemDao;
+    private readonly salesInvoiceDao;
 
     constructor() {
         this.salesOrderDao = new SalesOrderDao();
         this.salesOrderItemDao = new SalesOrderItemDao();
+        this.salesInvoiceDao = new SalesInvoiceDao();
     }
 
     @Get("/salesOrderData/:salesOrderId")
@@ -56,5 +59,21 @@ class GenerateSalesInvoiceService {
         });
 
         return salesOrderItems;
+    }
+
+    @Get("/advanceInvoiceData/:salesOrderId")
+    public advanceInvoiceData(_: any, ctx: any) {
+        const salesOrderId = ctx.pathParameters.salesOrderId;
+
+        let advanceInvoiceList = this.salesInvoiceDao.findAll({
+            $filter: {
+                equals: {
+                    SalesOrder: salesOrderId,
+                    SalesInvoiceType: 3
+                }
+            }
+        });
+
+        return advanceInvoiceList;
     }
 }
