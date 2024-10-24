@@ -44,6 +44,18 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
         $scope.advanceInvoices = response.data;
     });
 
+    $scope.selectedAdvanceInvoices = [];
+
+    $scope.updateSelectedAdvanceInvoices = function (advance) {
+        if (advance.selected) {
+            $scope.selectedAdvanceInvoices.push(advance);
+        } else {
+            $scope.selectedAdvanceInvoices = $scope.selectedAdvanceInvoices.filter(function (item) {
+                return item.Id !== advance.Id;
+            });
+        }
+    };
+
     $scope.generateInvoice = function () {
         let invoiceData = $scope.SalesOrderData;
         invoiceData.Date = new Date();
@@ -60,14 +72,14 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
                 .then(function (response) {
                     $scope.Invoice = response.data;
 
-                    // Create individual invoice items for each selected advance invoice
+                    console.log($scope.selectedAdvanceInvoices);
                     $scope.selectedAdvanceInvoices.forEach(advanceInvoice => {
                         const advanceInvoiceItem = {
                             "SalesInvoice": $scope.Invoice.Id,
                             "Name": `Advance Invoice ${advanceInvoice.Number} from ${advanceInvoice.Date}`, // Customize name if needed
                             "Quantity": 1,
                             "UoM": 17, // Example Unit of Measure (Pieces)
-                            "Price": advanceInvoice.PaymentAmount // Use advance invoice payment amount
+                            "Price": - advanceInvoice.PaymentAmount // Use advance invoice payment amount
                         };
                         $http.post(invoiceItemUrl, advanceInvoiceItem)
                             .then(itemResponse => {
@@ -90,7 +102,7 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
                         $http.post(invoiceItemUrl, salesInvoiceItem);
                     });
 
-                    console.log("Invoice created successfully: ", response.data);
+                    console.log("Full/Partial Invoice created successfully: ", response.data);
                     messageHub.showAlertSuccess("SalesInvoice", "Sales Invoice successfully created");
                     $scope.closeDialog();
                 })
