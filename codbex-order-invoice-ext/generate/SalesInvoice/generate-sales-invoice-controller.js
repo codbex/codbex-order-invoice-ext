@@ -82,7 +82,6 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
         invoiceData.SalesOrder = params.id;
 
         if ($scope.entity.fullInvoice) {
-            debugger
             invoiceData.SalesInvoiceType = 1;
 
             $http.post(invoiceUrl, invoiceData)
@@ -105,7 +104,6 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
                     const advanceInvoiceItems = $scope.deductAdvances($scope.selectedAdvanceInvoices, $scope.Invoice.Id);
                     advanceInvoiceItems.forEach(advanceInvoiceItem => {
                         $http.post(invoiceItemUrl, advanceInvoiceItem);
-                        debugger
                         $http.post(deductionUrl, {
                             "DeductionInvoice": $scope.Invoice.Id,
                             "AdvanceInvoice": advanceInvoiceItem.AdvanceInvoice
