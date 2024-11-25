@@ -1,7 +1,4 @@
 const app = angular.module('templateApp', ['ideUI', 'ideView'])
-    .config(["messageHubProvider", function (messageHubProvider) {
-        messageHubProvider.eventIdPrefix = 'codbex-invoices.salesinvoice.SalesInvoice';
-    }]);
 app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'messageHub', function ($scope, $http, ViewParameters, messageHub) {
     const params = ViewParameters.get();
     $scope.showDialog = true;
@@ -26,7 +23,6 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
     $http.get(salesOrderItemsUrl)
         .then(function (response) {
             $scope.SalesOrderItemsData = response.data;
-            console.log($scope.SalesOrderItemsData);
         });
 
     $http.get(paymentMethodsUrl)
@@ -72,7 +68,6 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
             $http.post(invoiceUrl, invoiceData)
                 .then(function (response) {
                     $scope.Invoice = response.data;
-
                     const partialInvoiceItem = {
                         "SalesInvoice": $scope.Invoice.Id,
                         "Name": "Partial Payment",
@@ -92,7 +87,6 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
                             "Price": -advanceInvoice.Net, // Negative for deduction
                             "VATRate": (advanceInvoice.VAT / advanceInvoice.Net) * 100
                         };
-
                         $http.post(invoiceItemUrl, advanceInvoiceItem);
                     });
 
@@ -124,7 +118,6 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
             $http.post(invoiceUrl, invoiceData)
                 .then(function (response) {
                     $scope.Invoice = response.data;
-
                     const advanceInvoiceItem = {
                         "SalesInvoice": $scope.Invoice.Id,
                         "Name": "Advance Payment",
@@ -143,12 +136,12 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
                 });
         }
         else if ($scope.entity.fullInvoice) {
+            debugger
             invoiceData.SalesInvoiceType = 1;
 
-            $http.post(invoiceUrl, $scope.SalesOrderData)
+            $http.post(invoiceUrl, invoiceData)
                 .then(function (response) {
                     $scope.Invoice = response.data
-                    debugger
                     $scope.SalesOrderItemsData.forEach(orderItem => {
                         const salesInvoiceItem = {
                             "SalesInvoice": $scope.Invoice.Id,
