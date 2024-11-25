@@ -1,6 +1,7 @@
 import { SalesOrderRepository as SalesOrderDao } from "codbex-orders/gen/codbex-orders/dao/SalesOrder/SalesOrderRepository";
 import { SalesOrderItemRepository as SalesOrderItemDao } from "codbex-orders/gen/codbex-orders/dao/SalesOrder/SalesOrderItemRepository";
 import { SalesInvoiceRepository as SalesInvoiceDao } from "codbex-invoices/gen/codbex-invoices/dao/salesinvoice/SalesInvoiceRepository";
+import { DeductionRepository as DeductionDao } from "codbex-invoices/gen/codbex-invoices/dao/salesinvoice/DeductionRepository";
 import { ProductRepository as ProductDao } from "codbex-products/gen/codbex-products/dao/Products/ProductRepository";
 
 import { Controller, Get } from "sdk/http";
@@ -11,12 +12,14 @@ class GenerateSalesInvoiceService {
     private readonly salesOrderDao;
     private readonly salesOrderItemDao;
     private readonly salesInvoiceDao;
+    private readonly deductionDao;
     private readonly productDao;
 
     constructor() {
         this.salesOrderDao = new SalesOrderDao();
         this.salesOrderItemDao = new SalesOrderItemDao();
         this.salesInvoiceDao = new SalesInvoiceDao();
+        this.deductionDao = new DeductionDao();
         this.productDao = new ProductDao();
     }
 
@@ -75,6 +78,7 @@ class GenerateSalesInvoiceService {
     public advanceInvoiceData(_: any, ctx: any) {
         const salesOrderId = ctx.pathParameters.salesOrderId;
 
+        // Retrieve all advance invoices for the sales order
         let advanceInvoiceList = this.salesInvoiceDao.findAll({
             $filter: {
                 equals: {
@@ -84,6 +88,21 @@ class GenerateSalesInvoiceService {
             }
         });
 
+        // Filter out advance invoices that have been deducted
+        advanceInvoiceList = advanceInvoiceList.filter(advanceInvoice => {
+            const deductions = this.deductionDao.findAll({
+                $filter: {
+                    equals: {
+                        AdvanceInvoice: advanceInvoice.Id
+                    }
+                }
+            });
+
+            // Only include advance invoices that have no deductions
+            return deductions.length === 0;
+        });
+
         return advanceInvoiceList;
     }
+
 }

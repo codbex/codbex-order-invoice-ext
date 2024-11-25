@@ -14,6 +14,7 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
     const invoiceUrl = "/services/ts/codbex-invoices/gen/codbex-invoices/api/salesinvoice/SalesInvoiceService.ts/";
     const invoiceItemUrl = "/services/ts/codbex-invoices/gen/codbex-invoices/api/salesinvoice/SalesInvoiceItemService.ts/"
     const paymentMethodsUrl = "/services/ts/codbex-methods/gen/codbex-methods/api/Methods/PaymentMethodService.ts/";
+    const deductionUrl = "/services/ts/codbex-invoices/gen/codbex-invoices/api/salesinvoice/DeductionService.ts/"
 
     $http.get(salesOrderDataUrl)
         .then(function (response) {
@@ -65,7 +66,8 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
                 "Quantity": 1,
                 "UoM": 17, // Pieces
                 "Price": -advanceInvoice.Net, // Negative for deduction
-                "VATRate": (advanceInvoice.VAT / advanceInvoice.Net) * 100 // Calculate VAT rate
+                "VATRate": (advanceInvoice.VAT / advanceInvoice.Net) * 100, // Calculate VAT rate
+                "AdvanceInvoice": advanceInvoice.Id
             };
         });
     };
@@ -103,6 +105,11 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
                     const advanceInvoiceItems = $scope.deductAdvances($scope.selectedAdvanceInvoices, $scope.Invoice.Id);
                     advanceInvoiceItems.forEach(advanceInvoiceItem => {
                         $http.post(invoiceItemUrl, advanceInvoiceItem);
+                        debugger
+                        $http.post(deductionUrl, {
+                            "DeductionInvoice": $scope.Invoice.Id,
+                            "AdvanceInvoice": advanceInvoiceItem.AdvanceInvoice
+                        });
                     });
 
                     console.log("Invoice created successfully: ", response.data);
@@ -133,6 +140,10 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
                     const advanceInvoiceItems = $scope.deductAdvances($scope.selectedAdvanceInvoices, $scope.Invoice.Id);
                     advanceInvoiceItems.forEach(advanceInvoiceItem => {
                         $http.post(invoiceItemUrl, advanceInvoiceItem);
+                        $http.post(deductionUrl, {
+                            "DeductionInvoice": $scope.Invoice.Id,
+                            "AdvanceInvoice": advanceInvoiceItem.AdvanceInvoice
+                        });
                     });
 
                     console.log("Partial Invoice created successfully: ", response.data);
