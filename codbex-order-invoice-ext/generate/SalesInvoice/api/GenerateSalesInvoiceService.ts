@@ -51,12 +51,10 @@ class GenerateSalesInvoiceService {
     public salesOrderItemsData(_: any, ctx: any) {
         const salesOrderId = ctx.pathParameters.salesOrderId;
 
-        let salesOrder = this.salesOrderDao.findById(salesOrderId);
-
         let salesOrderItems = this.salesOrderItemDao.findAll({
             $filter: {
                 equals: {
-                    SalesOrder: salesOrder.Id
+                    SalesOrder: salesOrderId
                 }
             }
         });
@@ -65,12 +63,13 @@ class GenerateSalesInvoiceService {
             const product = this.productDao.findById(item.Product);
             return {
                 ...item,
-                Product: product ? product.Name : "Unknown Product"
+                ProductName: product?.Name
             };
         });
 
         return salesOrderItems;
     }
+
 
     @Get("/advanceInvoiceData/:salesOrderId")
     public advanceInvoiceData(_: any, ctx: any) {

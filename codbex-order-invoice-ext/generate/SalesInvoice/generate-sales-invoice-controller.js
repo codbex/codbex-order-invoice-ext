@@ -23,6 +23,7 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
     $http.get(salesOrderItemsUrl)
         .then(function (response) {
             $scope.SalesOrderItemsData = response.data;
+            console.log($scope.SalesOrderItemsData);
         });
 
     $http.get(paymentMethodsUrl)
@@ -53,6 +54,22 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
         }
     };
 
+    $scope.deductAdvances = function (advanceInvoices, invoiceId) {
+        return advanceInvoices.map(advanceInvoice => {
+            const date = new Date(advanceInvoice.Date);
+            const formattedDate = `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`; // Format as DD.MM.YYYY
+
+            return {
+                "SalesInvoice": invoiceId,
+                "Name": `Advance Invoice ${advanceInvoice.Number} from ${formattedDate}`,
+                "Quantity": 1,
+                "UoM": 17, // Pieces
+                "Price": -advanceInvoice.Net, // Negative for deduction
+                "VATRate": (advanceInvoice.VAT / advanceInvoice.Net) * 100 // Calculate VAT rate
+            };
+        });
+    };
+
     $scope.generateInvoice = function () {
         let invoiceData = $scope.SalesOrderData;
         invoiceData.Date = new Date();
@@ -62,7 +79,42 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
         invoiceData.PaymentMethod = $scope.entity.PaymentMethod;
         invoiceData.SalesOrder = params.id;
 
-        if ($scope.entity.partialInvoice) {
+        if ($scope.entity.fullInvoice) {
+            debugger
+            invoiceData.SalesInvoiceType = 1;
+
+            $http.post(invoiceUrl, invoiceData)
+                .then(function (response) {
+                    $scope.Invoice = response.data
+
+                    $scope.SalesOrderItemsData.forEach(orderItem => {
+                        const salesInvoiceItem = {
+                            "SalesInvoice": $scope.Invoice.Id,
+                            "Name": orderItem.ProductName,
+                            "Quantity": orderItem.Quantity,
+                            "UoM": orderItem.UoM,
+                            "Price": orderItem.Price,
+                            "Net": orderItem.Net,
+                            "VATRate": orderItem.VATRate,
+                        };
+                        $http.post(invoiceItemUrl, salesInvoiceItem);
+                    });
+
+                    const advanceInvoiceItems = $scope.deductAdvances($scope.selectedAdvanceInvoices, $scope.Invoice.Id);
+                    advanceInvoiceItems.forEach(advanceInvoiceItem => {
+                        $http.post(invoiceItemUrl, advanceInvoiceItem);
+                    });
+
+                    console.log("Invoice created successfully: ", response.data);
+                    //alert("Invoice created successfully");
+                    $scope.closeDialog();
+                })
+                .catch(function (error) {
+                    console.error("Error creating invoice: ", error);
+                    //alert("Error creating sales invoice");
+                    $scope.closeDialog();
+                });
+        } else if ($scope.entity.partialInvoice) {
             invoiceData.SalesInvoiceType = 2;
 
             $http.post(invoiceUrl, invoiceData)
@@ -78,32 +130,12 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
                     };
                     $http.post(invoiceItemUrl, partialInvoiceItem);
 
-                    $scope.selectedAdvanceInvoices.forEach(advanceInvoice => {
-                        const advanceInvoiceItem = {
-                            "SalesInvoice": $scope.Invoice.Id,
-                            "Name": `Advance Invoice ${advanceInvoice.Number} from ${advanceInvoice.Date}`,
-                            "Quantity": 1,
-                            "UoM": 17, // Pieces
-                            "Price": -advanceInvoice.Net, // Negative for deduction
-                            "VATRate": (advanceInvoice.VAT / advanceInvoice.Net) * 100
-                        };
+                    const advanceInvoiceItems = $scope.deductAdvances($scope.selectedAdvanceInvoices, $scope.Invoice.Id);
+                    advanceInvoiceItems.forEach(advanceInvoiceItem => {
                         $http.post(invoiceItemUrl, advanceInvoiceItem);
                     });
 
-                    $scope.SalesOrderItemsData.forEach(orderItem => {
-                        const salesInvoiceItem = {
-                            "SalesInvoice": $scope.Invoice.Id,
-                            "Name": orderItem.Product,
-                            "Quantity": orderItem.Quantity,
-                            "UoM": orderItem.UoM,
-                            "Price": orderItem.Price,
-                            "VATRate": orderItem.VATRate
-                        };
-
-                        $http.post(invoiceItemUrl, salesInvoiceItem);
-                    });
-
-                    console.log("Full/Partial Invoice created successfully: ", response.data);
+                    console.log("Partial Invoice created successfully: ", response.data);
                     messageHub.showAlertSuccess("SalesInvoice", "Sales Invoice successfully created");
                     $scope.closeDialog();
                 })
@@ -113,19 +145,32 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
 
         } else if ($scope.entity.advanceInvoice) {
             invoiceData.SalesInvoiceType = 3;
-            invoiceData.Amount = $scope.entity.PaymentAmount;
+
+            if (!$scope.entity.PaymentAmount) {
+                console.error("Payment Amount is not defined.");
+                return;
+            }
 
             $http.post(invoiceUrl, invoiceData)
                 .then(function (response) {
                     $scope.Invoice = response.data;
+
                     const advanceInvoiceItem = {
                         "SalesInvoice": $scope.Invoice.Id,
                         "Name": "Advance Payment",
                         "Quantity": 1,
                         "UoM": 17, // Pieces
-                        "Price": $scope.entity.PaymentAmount
+                        "Price": $scope.entity.PaymentAmount,
+                        "VATRate": 20
                     };
-                    $http.post(invoiceItemUrl, advanceInvoiceItem);
+
+                    $http.post(invoiceItemUrl, advanceInvoiceItem)
+                        .then(function (itemResponse) {
+                            console.log("Advance Invoice Item created: ", itemResponse.data);
+                        })
+                        .catch(function (itemError) {
+                            console.error("Error creating advance invoice item: ", itemError);
+                        });
 
                     console.log("Advance Invoice created: ", response.data);
                     messageHub.showAlertSuccess("SalesInvoice", "Sales Invoice successfully created with advance amount deducted");
@@ -133,36 +178,6 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
                 })
                 .catch(function (error) {
                     console.error("Error creating advance invoice: ", error);
-                });
-        }
-        else if ($scope.entity.fullInvoice) {
-            debugger
-            invoiceData.SalesInvoiceType = 1;
-
-            $http.post(invoiceUrl, invoiceData)
-                .then(function (response) {
-                    $scope.Invoice = response.data
-                    $scope.SalesOrderItemsData.forEach(orderItem => {
-                        const salesInvoiceItem = {
-                            "SalesInvoice": $scope.Invoice.Id,
-                            "Name": orderItem.Product,
-                            "Quantity": orderItem.Quantity,
-                            "UoM": orderItem.UoM,
-                            "Price": orderItem.Price,
-                            "Net": orderItem.Net,
-                            "VATRate": orderItem.VATRate,
-                        };
-                        $http.post(invoiceItemUrl, salesInvoiceItem);
-                    });
-
-                    console.log("Invoice created successfully: ", response.data);
-                    //alert("Invoice created successfully");
-                    $scope.closeDialog();
-                })
-                .catch(function (error) {
-                    console.error("Error creating invoice: ", error);
-                    //alert("Error creating sales invoice");
-                    $scope.closeDialog();
                 });
         }
     };
