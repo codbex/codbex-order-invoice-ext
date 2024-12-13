@@ -82,7 +82,7 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
         invoiceData.SalesOrder = params.id;
 
         if ($scope.entity.fullInvoice) {
-            invoiceData.SalesInvoiceType = 1;
+            invoiceData.Type = 3;
 
             $http.post(invoiceUrl, invoiceData)
                 .then(function (response) {
@@ -120,7 +120,7 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
                     $scope.closeDialog();
                 });
         } else if ($scope.entity.partialInvoice) {
-            invoiceData.SalesInvoiceType = 2;
+            invoiceData.Type = 4;
 
             $http.post(invoiceUrl, invoiceData)
                 .then(function (response) {
@@ -153,7 +153,7 @@ app.controller('templateController', ['$scope', '$http', 'ViewParameters', 'mess
                 });
 
         } else if ($scope.entity.advanceInvoice) {
-            invoiceData.SalesInvoiceType = 3;
+            invoiceData.Type = 5;
 
             if (!$scope.entity.PaymentAmount) {
                 console.error("Payment Amount is not defined.");

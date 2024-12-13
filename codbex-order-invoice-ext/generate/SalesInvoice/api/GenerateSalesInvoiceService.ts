@@ -44,7 +44,7 @@ class GenerateSalesInvoiceService {
             "Conditions": salesOrder.Conditions,
             "SentMethod": salesOrder.SentMethod,
             "Company": salesOrder.Company,
-            "SalesInvoiceStatus": 1,
+            "Status": salesOrder.Status,
             "Operator": salesOrder.Operator,
             "Reference": salesOrder.UUID
         };
@@ -83,7 +83,7 @@ class GenerateSalesInvoiceService {
             $filter: {
                 equals: {
                     SalesOrder: salesOrderId,
-                    SalesInvoiceType: 3
+                    Type: 5
                 }
             }
         });
