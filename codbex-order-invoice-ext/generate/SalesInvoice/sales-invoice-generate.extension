@@ -1,5 +1,6 @@
 {
     "module": "codbex-order-invoice-ext/generate/SalesInvoice/sales-invoice-generate.js",
     "extensionPoint": "codbex-orders-custom-action",
-    "description": "Generate Sales Invoice From Sales Order Custom Action"
+    "description": "Generate Sales Invoice From Sales Order Custom Action",
+    "role": "codbex-invoices.salesinvoice.SalesInvoiceItemReadOnly,codbex-invoices.salesinvoice.SalesInvoiceItemFullAccess,codbex-invoices.salesinvoice.SalesInvoiceReadOnly,codbex-invoices.salesinvoice.SalesInvoiceFullAccess"
 }
